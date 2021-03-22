@@ -4,7 +4,9 @@ const morgan = require("morgan");
 const passport = require("passport");
 const { connect } = require("mongoose");
 const { success, error } = require("consola");
-const { spawn } = require("child_process");
+
+//Bot
+const { driver } = require("./bot_driver");
 
 //User Model
 const User = require("./api/models/user/user");
@@ -53,17 +55,8 @@ const startApp = async () => {
       badge: true,
     });
 
-    const dataSet = [];
-    const python = spawn("python", ["./bot/app.py"]);
-    python.stdout.on("data", function (data) {
-      console.log("Pipe data from python script ...");
-      dataSet.push(data);
-    });
-
-    python.on("close", (code) => {
-      console.log(`child process close all stdio with code ${code}\n`);
-      console.log("dataSet is: " + dataSet.join(""));
-    });
+    //Bot Driver
+    driver();
 
     // Start Listenting for the server on PORT
     app.listen(PORT, async () => {

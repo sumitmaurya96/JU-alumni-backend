@@ -8,23 +8,27 @@ from selenium import webdriver as wb
 
 
 # Scroll to get all data
-def scrollToEnd(driver):
-    driver.execute_script("window.scrollTo(0, document.body.scrollHeight)")
-    time.sleep(3)
-    height = driver.execute_script("return document.body.scrollHeight")
-    flag = True
+def scroll_to_end(driver):
+    #####################
+    driver.execute_script("window.scrollTo(0, document.body.scrollHeight/3)")
+    time.sleep(4)
+    ##########################
+    # driver.execute_script("window.scrollTo(0, document.body.scrollHeight)")
+    # time.sleep(3)
+    # height = driver.execute_script("return document.body.scrollHeight")
+    # flag = True
 
-    while(flag):
-        driver.execute_script("window.scrollTo(0, document.body.scrollHeight)")
-        time.sleep(3)
-        new_height = driver.execute_script("return document.body.scrollHeight")
-        if(new_height == height):
-            flag = False
-        height = new_height
+    # while(flag):
+    #     driver.execute_script("window.scrollTo(0, document.body.scrollHeight)")
+    #     time.sleep(3)
+    #     new_height = driver.execute_script("return document.body.scrollHeight")
+    #     if(new_height == height):
+    #         flag = False
+    #     height = new_height
 
 
 # Get Alumni handle
-def getAlumniDetails(src):
+def get_alumnus_details(src):
     try:
         soup = BeautifulSoup(src, features="html.parser")
 
@@ -56,44 +60,49 @@ def getAlumniDetails(src):
         started = edu_a.find_all('time')[0].get_text().strip()
         completed = edu_a.find_all('time')[1].get_text().strip()
 
+        # return {
+        #     "name": name,
+        #     "address": loc,
+        #     "profile_title": profile_title,
+        #     "image": image,
+        #     "experience": {
+        #         "company_name": company_name,
+        #         "job_title": job_title,
+        #         "date_employed": date_employed,
+        #         "employment_duration": employment_duration
+        #     },
+        #     "education": {
+        #         "institute_name": institute_name,
+        #         "degree_name": degree_name,
+        #         "field_of_study": field_of_study,
+        #         "started": started,
+        #         "completed": completed
+        #     }
+        # }
+
         return {
             "name": name,
+            "degree": degree_name,
+            "stream": field_of_study,
+            "profession": profile_title,
+            "company": company_name,
             "address": loc,
-            "profile_title": profile_title,
-            "image": image,
-            "experience": {
-                "company_name": company_name,
-                "job_title": job_title,
-                "date_employed": date_employed,
-                "employment_duration": employment_duration
-            },
-            "education": {
-                "institute_name": institute_name,
-                "degree_name": degree_name,
-                "field_of_study": field_of_study,
-                "started": started,
-                "completed": completed
-            }
         }
 
     except:
-        a = 8
+        pass
 
 
-if __name__ == "__main__":
+def login(driver):
     dotenv_path = join(dirname(__file__), '../.env')
     load_dotenv(dotenv_path)
 
     EMAIL = os.environ.get("LINKEDIN_EMAIL")
     PASSWORD = os.environ.get("LINKEDIN_PASSWORD")
 
-    driver = wb.Chrome(
-        executable_path='D:\selenium\chromedriver_win32\chromedriver.exe')
-
     driver.maximize_window()
     driver.get('https://www.linkedin.com')
     time.sleep(1)
-
     input_email = driver.find_element_by_id('session_key')
     input_email.send_keys(EMAIL)
     time.sleep(1)
@@ -107,32 +116,59 @@ if __name__ == "__main__":
     submit_button.click()
     time.sleep(1)
 
+
+def go_to_alumni_page(driver):
     driver.get('https://www.linkedin.com/school/jadavpur-university/people/')
+    time.sleep(1)
 
-    driver.execute_script("window.scrollTo(0, document.body.scrollHeight)")
-    time.sleep(4)
-    # scrollToEnd(driver)
 
+def get_alumni_handles(driver):
     alumni_list = driver.find_elements_by_class_name(
         'org-people-profile-card__profile-info')
 
-    alumni_handle_list = []
+    alumni_handles = []
 
     for alumni_info in alumni_list:
         alumni_handle = alumni_info.find_element_by_tag_name(
             'a').get_attribute('href')
 
-        alumni_handle_list.append(alumni_handle)
+        alumni_handles.append(alumni_handle)
 
-    for alumni_handle in alumni_handle_list:
+    return alumni_handles
+
+
+def get_alumni_details(driver, alumni_handles):
+    for alumnus_handle in alumni_handles:
         time.sleep(1)
-        driver.get(alumni_handle)
+        driver.get(alumnus_handle)
         time.sleep(2)
         driver.execute_script("window.scrollTo(0, document.body.scrollHeight)")
         time.sleep(2)
-        alumni_details = getAlumniDetails(driver.page_source)
-        print(alumni_details)
+        alumnus_details = get_alumnus_details(driver.page_source)
+        if alumnus_details is None:
+            pass
+        else:
+            alumnus_details["linkedIn"] = alumnus_handle
+            # Print to console
+            print(alumnus_details)
 
-    time.sleep(1)
+
+if __name__ == "__main__":
+    driver = wb.Chrome(
+        executable_path='D:\selenium\chromedriver_win32\chromedriver.exe')
+
+    # Login to Your Account
+    login(driver)
+    # Go to Alumni page
+    go_to_alumni_page(driver)
+    # Scroll to end of page
+    scroll_to_end(driver)
+    # Get alumni handles
+    alumni_handles = get_alumni_handles(driver)
+    # Get alumni details list
+    get_alumni_details(driver, alumni_handles)
+
+    # Close Driver
     driver.close()
-    sys.exit()
+    # Quit Driver
+    driver.quit()
