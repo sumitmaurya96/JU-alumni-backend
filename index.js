@@ -4,9 +4,10 @@ const morgan = require("morgan");
 const passport = require("passport");
 const { connect } = require("mongoose");
 const { success, error } = require("consola");
+const { fork } = require("child_process");
 
 //Bot
-const { driver } = require("./bot_driver");
+const { bot_driver } = require("./bot_driver");
 
 //User Model
 const User = require("./api/models/user/user");
@@ -55,8 +56,10 @@ const startApp = async () => {
       badge: true,
     });
 
-    //Bot Driver
-    driver();
+    setInterval(() => {
+      //Bot Driver
+      fork("./bot_driver.js");
+    }, 1000 * 86400);
 
     // Start Listenting for the server on PORT
     app.listen(PORT, async () => {

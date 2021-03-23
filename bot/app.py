@@ -1,5 +1,5 @@
-import sys
 import time
+import json
 import os
 from dotenv import load_dotenv
 from os.path import join, dirname
@@ -138,6 +138,8 @@ def get_alumni_handles(driver):
 
 
 def get_alumni_details(driver, alumni_handles):
+    alumni_details = []
+
     for alumnus_handle in alumni_handles:
         time.sleep(1)
         driver.get(alumnus_handle)
@@ -149,8 +151,9 @@ def get_alumni_details(driver, alumni_handles):
             pass
         else:
             alumnus_details["linkedIn"] = alumnus_handle
-            # Print to console
-            print(alumnus_details)
+            alumni_details.append(alumnus_details)
+
+    print(json.dumps(alumni_details))
 
 
 if __name__ == "__main__":
