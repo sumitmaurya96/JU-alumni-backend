@@ -12,15 +12,30 @@ const save_alumni = (alumni_details_json) => {
         linkedIn: alumnus_details.linkedIn,
       });
 
-      const newAlumnus = new Alumni({
-        ...alumnus_details,
-      });
+      if (alumnus) {
+        await Alumni.updateOne(
+          { _id: alumnus.id },
+          {
+            $set: alumnus_details,
+            $currentDate: { lastModified: true },
+          }
+        );
 
-      await newAlumnus.save();
-      console.log({
-        message: "Alumnus uploaded successfully",
-        success: true,
-      });
+        console.log({
+          message: "Alumnus updated successfully",
+          success: true,
+        });
+      } else {
+        const newAlumnus = new Alumni({
+          ...alumnus_details,
+        });
+
+        await newAlumnus.save();
+        console.log({
+          message: "Alumnus uploaded successfully",
+          success: true,
+        });
+      }
     } catch (err) {
       console.log({
         message: "Unable to upload alumnus",

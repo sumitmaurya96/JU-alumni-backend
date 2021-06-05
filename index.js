@@ -56,10 +56,10 @@ const startApp = async () => {
       badge: true,
     });
 
-    setInterval(() => {
-      //Bot Driver
-      fork("./bot_driver.js");
-    }, 1000 * 86400);
+    //setInterval(() => {
+    //Bot Driver
+    fork("./bot_driver.js");
+    //}, 1000 * 86400);
 
     // Start Listenting for the server on PORT
     app.listen(PORT, async () => {

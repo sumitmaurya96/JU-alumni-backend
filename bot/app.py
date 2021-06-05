@@ -9,12 +9,12 @@ from selenium import webdriver as wb
 
 # Scroll to get all data
 def scroll_to_end(driver):
-    #####################
-    driver.execute_script("window.scrollTo(0, document.body.scrollHeight/3)")
+    #########################
+    driver.execute_script("window.scrollTo(0, document.body.scrollHeight)")
     time.sleep(4)
+    driver.execute_script("window.scrollTo(0, document.body.scrollHeight)")
+    time.sleep(3)
     ##########################
-    # driver.execute_script("window.scrollTo(0, document.body.scrollHeight)")
-    # time.sleep(3)
     # height = driver.execute_script("return document.body.scrollHeight")
     # flag = True
 
